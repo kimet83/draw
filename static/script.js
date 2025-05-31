@@ -43,8 +43,8 @@ function updateState() {
         row.id = entry["면허번호"]; // 면허번호를 ID로 사용하여 중복 방지
         row.innerHTML = `
           <td>${entry["면허번호"]}</td>
-          <td>${entry["성함"]}</td>
-          <td>${entry["소속"]}</td>
+          <td>${entry["이름"]}</td>
+          <td>${entry["소속기관"]}</td>
           <td>${entry["경품"]}</td>
           <td><button class="btn btn-sm btn-outline-warning" onclick='redrawEntry(${JSON.stringify(
             entry
@@ -56,14 +56,14 @@ function updateState() {
 
       // 전체 누적 리스트
       data.all.forEach((entry) => {
-        const key = `${entry["면허번호"]}_${entry["성함"]}_${entry["소속"]}_${entry["경품"]}`;
+        const key = `${entry["면허번호"]}_${entry["이름"]}_${entry["소속기관"]}_${entry["경품"]}`;
         if (!allDrawn.has(key)) {
           const li = document.createElement("li");
           li.className =
             "list-group-item d-flex justify-content-between align-items-center";
           li.innerHTML = `
-            <span>${entry["면허번호"]} - ${entry["성함"]} - ${
-            entry["소속"]
+            <span>${entry["면허번호"]} - ${entry["이름"]} - ${
+            entry["소속기관"]
           } - [${entry["경품"]}]</span>
             <button class="btn btn-sm btn-outline-danger" onclick='deleteEntry(${JSON.stringify(
               entry
@@ -88,7 +88,7 @@ function updateState() {
 
 function deleteEntry(entry) {
   const confirmed = confirm(
-    `정말로 삭제하시겠습니까?\n${entry["면허번호"]} - ${entry["성함"]} - ${entry["소속"]} - [${entry["경품"]}]`
+    `정말로 삭제하시겠습니까?\n${entry["면허번호"]} - ${entry["이름"]} - ${entry["소속기관"]} - [${entry["경품"]}]`
   );
   if (!confirmed) return;
 
@@ -139,7 +139,7 @@ function draw() {
       // data.result는 이번에 추첨된 인원 리스트
       data.result.forEach((entry) => {
         const row = document.createElement("tr");
-        row.innerHTML = `<td>${entry["면허번호"]}</td><td>${entry["성함"]}</td><td>${entry["소속"]}</td><td>${entry["경품"]}</td>`;
+        row.innerHTML = `<td>${entry["면허번호"]}</td><td>${entry["이름"]}</td><td>${entry["소속기관"]}</td><td>${entry["경품"]}</td>`;
         recentTableBody.appendChild(row);
       });
 
@@ -157,7 +157,7 @@ function draw() {
 
 function redrawEntry(entry) {
   const confirmed = confirm(
-    `정말로 재추첨 하시겠습니까?\n${entry["면허번호"]} - ${entry["성함"]} - ${entry["소속"]} - [${entry["경품"]}]`
+    `정말로 재추첨 하시겠습니까?\n${entry["면허번호"]} - ${entry["이름"]} - ${entry["소속기관"]} - [${entry["경품"]}]`
   );
   if (!confirmed) return;
   // 1. 삭제 요청
@@ -203,8 +203,8 @@ function redrawEntry(entry) {
         row.id = newEntry["면허번호"];
         row.innerHTML = `
           <td>${newEntry["면허번호"]}</td>
-          <td>${newEntry["성함"]}</td>
-          <td>${newEntry["소속"]}</td>
+          <td>${newEntry["이름"]}</td>
+          <td>${newEntry["소속기관"]}</td>
           <td>${newEntry["경품"]}</td>
           <td><button class="btn btn-sm btn-outline-warning" onclick='redrawEntry(${JSON.stringify(
             newEntry
@@ -226,14 +226,14 @@ function redrawEntry(entry) {
 
           // 전체 누적 리스트
           data.all.forEach((entry) => {
-            const key = `${entry["면허번호"]}_${entry["성함"]}_${entry["소속"]}_${entry["경품"]}`;
+            const key = `${entry["면허번호"]}_${entry["이름"]}_${entry["소속기관"]}_${entry["경품"]}`;
             if (!allDrawn.has(key)) {
               const li = document.createElement("li");
               li.className =
                 "list-group-item d-flex justify-content-between align-items-center";
               li.innerHTML = `
-            <span>${entry["면허번호"]} - ${entry["성함"]} - ${
-                entry["소속"]
+            <span>${entry["면허번호"]} - ${entry["이름"]} - ${
+                entry["소속기관"]
               } - [${entry["경품"]}]</span>
             <button class="btn btn-sm btn-outline-danger" onclick='deleteEntry(${JSON.stringify(
               entry
