@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <title>무작위 추첨기</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-light">
+
+    <div class="container py-5">
+        <h1 class="text-center mb-4">2025년 제 1차 임상병리사협회 충남도회 보수교육 경품 추첨</h1>
+
+        <!-- 엑셀 업로드 버튼 -->
+        <div class="d-flex justify-content-end mb-4">
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#uploadModal">
+                엑셀 업로드
+            </button>
+        </div>
+
+        <!-- 엑셀 업로드 모달 -->
+        <div class="modal fade" id="uploadModal" tabindex="-1" aria-labelledby="uploadModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <form action="/upload" method="post" enctype="multipart/form-data" class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="uploadModalLabel">엑셀 파일 업로드</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="file" name="file" class="form-control" accept=".xlsx" required>
+                        <div class="form-text mt-2">
+                            엑셀 파일에는 <code>면허번호, 성함, 소속</code> 열이 있어야 합니다.
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-success">업로드</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="card">
+  <div class="card-body">
+    <h3 class="card-title" style="text-align: center;">추첨하기</h3>
+    <div class="row g-2 align-items-center mb-3">
+      <div class="col-auto">
+        <label for="count" class="form-label mb-0">인원 수:</label>
+      </div>
+      <div class="col-auto">
+        <input type="number" class="form-control" id="count" min="1" placeholder="예: 5">
+      </div>
+      <div class="col-auto">
+        <label for="gift" class="form-label mb-0">경품명:</label>
+      </div>
+      <div class="col-auto">
+        <select id="gift" class="form-select">
+          <option value="1등 해외연수">1등 해외연수</option>
+          <option value="2등 다이슨 에어랩 코안다2x™">2등 다이슨 에어랩 코안다2x™</option>
+          <option value="3등 다이슨 에어랩 i.d.™">3등 다이슨 에어랩 i.d.™</option>
+          <option value="4등 커피머신">4등 커피머신</option>
+          <option value="5등 스타벅스상품권">5등 스타벅스상품권</option>
+        </select>
+      </div>
+            <div class="col-auto">
+        <label for="gift-limit" class="form-label mb-0">당첨 최대 인원 수:</label>
+      </div>
+      <div class="col-auto">
+        <input type="number" class="form-control" id="gift-limit" min="1" placeholder="예: 5">
+      </div>
+    </div>
+
+    <!-- ✅ 줄 바꿔 가운데 정렬된 큰 버튼 -->
+    <div class="w-100 text-center mt-3">
+      <button onclick="draw()" class="btn btn-success btn-lg px-5">🎉 추첨하기 🎉</button>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mt-4">
+      <div class="alert alert-secondary py-2 mb-0">
+        남은 인원: <span id="remaining" class="fw-bold">{{ remaining }}</span>명
+      </div>
+      <div class="d-flex gap-2">
+        <button onclick="clearDrawn()" class="btn btn-outline-danger btn-sm">당첨자 초기화</button>
+        <button onclick="resetAll()" class="btn btn-outline-dark btn-sm">전체 초기화</button>
+      </div>
+    </div>
+
+    <div id="error" class="alert alert-danger d-none mt-3"></div>
+  </div>
+</div>
+
+        <div class="card mt-4">
+            <div class="card-body">
+                <h1 class="card-title" style="text-align: center;">축하드립니다!!</h1>
+                <table class="table table-bordered table-sm text-center">
+                    <thead class="table-light">
+                        <tr>
+                            <th>면허번호</th>
+                            <th>성함</th>
+                            <th>소속</th>
+                            <th>경품</th>
+                            <th>재추첨</th>                            
+                        </tr>
+                    </thead>
+                    <tbody id="recent-table-body"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card mt-4">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <a class="btn btn-link text-decoration-none" data-bs-toggle="collapse" href="#collapseResult"
+      role="button" aria-expanded="false" aria-controls="collapseResult">
+      <strong>전체 추첨 누적 결과</strong>
+    </a>
+    <div class="text-end">
+      <div class="text-muted">
+        총 당첨자 수: <span id="total-winners">0</span>명
+      </div>
+      <div class="small text-muted" id="gift-counts">
+        <!-- 경품별 당첨자 수가 여기에 들어감 -->
+      </div>
+    </div>
+  </div>
+  <div class="collapse" id="collapseResult">
+    <div class="card-body">
+      <ul class="list-group" id="result"></ul>
+    </div>
+  </div>
+</div>
+
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+</body>
+
+</html>
