@@ -55,10 +55,10 @@ def upload():
         file.save(filepath)
 
         df = pd.read_excel(filepath)
-        if not {'면허번호', '이름', '소속기관'}.issubset(df.columns):
-            return "엑셀 파일에 '면허번호', '이름', '소속기관' 열이 있어야 합니다.", 400
+        if not {'NO', '이름'}.issubset(df.columns):
+            return "엑셀 파일에 'NO', '이름' 열이 있어야 합니다.", 400
 
-        remaining_entries = df[['면허번호', '이름', '소속기관']].dropna().to_dict(orient='records')
+        remaining_entries = df[['NO', '이름']].dropna().to_dict(orient='records')
         selected_entries.clear()
         return redirect(url_for('index'))
 
@@ -76,9 +76,8 @@ def draw():
                 import json
                 exclude = json.loads(exclude)
                 remaining_entries = [e for e in remaining_entries if not (
-                    e["면허번호"] == exclude["면허번호"] and
-                    e["이름"] == exclude["이름"] and
-                    e["소속기관"] == exclude["소속기관"]
+                    e["NO"] == exclude["NO"] and
+                    e["이름"] == exclude["이름"]
                 )]
             except Exception as e:
                 return jsonify({"error": f"제외 처리 오류: {str(e)}"}), 400
@@ -151,9 +150,8 @@ def log_draw_result(filename, entries):
         log_entries.append({
             "시각": timestamp,
             "엑셀파일": filename or "unknown.xlsx",
-            "면허번호": e['면허번호'],
+            "NO": e['NO'],
             "이름": e['이름'],
-            "소속기관": e['소속기관'],
             "경품": e['경품']
         })
     df = pd.DataFrame(log_entries)
@@ -173,9 +171,8 @@ def delete():
         to_delete = None
         for e in selected_entries:
             if (
-                e['면허번호'] == data['면허번호'] and
+                e['NO'] == data['NO'] and
                 e['이름'] == data['이름'] and
-                e['소속기관'] == data['소속기관'] and
                 e['경품'] == data['경품']
             ):
                 to_delete = e
@@ -195,9 +192,8 @@ def log_delete_result(entry):
     timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     log_entry = {
         "삭제시각": timestamp,
-        "면허번호": entry['면허번호'],
+        "NO": entry['NO'],
         "이름": entry['이름'],
-        "소속기관": entry['소속기관'],
         "경품": entry['경품']
     }
 
