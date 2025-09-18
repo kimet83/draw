@@ -4,17 +4,63 @@
 <head>
   <meta charset="UTF-8">
   <title>무작위 추첨기</title>
+  <script>
+    (function () {
+      try {
+        var dark = localStorage.getItem('draw.dark') === '1';
+        document.documentElement.setAttribute('data-bs-theme', dark ? 'dark' : 'light');
+      } catch (e) { }
+    })();
+  </script>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body.presentation {
+      font-size: 1.25rem;
+    }
+
+    body.presentation h1,
+    body.presentation .card-title {
+      font-size: 2rem;
+    }
+
+    body.presentation .card {
+      background: transparent;
+      border: none;
+      box-shadow: none;
+    }
+
+    /* ✅ 발표모드일 때만 숨김 */
+    body.presentation .presentation-hide {
+      display: none !important;
+    }
+
+    body.presentation table {
+      font-size: 1.1rem;
+    }
+
+    /* 다크 테마일 때 #btn-reset의 outline-dark 팔레트를 밝게 재정의 */
+    html[data-bs-theme="dark"] #btn-reset.btn-outline-dark {
+      --bs-btn-color: var(--bs-body-color);
+      --bs-btn-border-color: var(--bs-body-color);
+      --bs-btn-hover-bg: var(--bs-body-color);
+      --bs-btn-hover-border-color: var(--bs-body-color);
+      --bs-btn-hover-color: var(--bs-body-bg);
+      --bs-btn-active-bg: var(--bs-body-color);
+      --bs-btn-active-border-color: var(--bs-body-color);
+    }
+  </style>
 </head>
 
-<body class="bg-light">
+<body class="bg-body">
 
   <div class="container py-5">
     <h1 class="text-center mb-4">2025년 제 2차 임상병리사협회 충남도회 보수교육 경품 추첨</h1>
 
-    <!-- 엑셀 업로드 버튼 -->
-    <div class="d-flex justify-content-end mb-4">
-      <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#uploadModal">
+    <!-- 업로드/토글 버튼 영역 -->
+    <div class="d-flex justify-content-end mb-4 gap-2 controls presentation-hide">
+      <button class="btn btn-secondary" id="btn-darkmode" type="button">🌙 다크모드</button>
+      <button class="btn btn-outline-secondary" id="btn-present" type="button">⛶ 발표모드</button>
+      <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#uploadModal" type="button">
         엑셀 업로드
       </button>
     </div>
@@ -95,7 +141,7 @@
       <div class="card-body">
         <h1 class="card-title" style="text-align: center;">축하드립니다!!</h1>
         <table class="table table-bordered table-sm text-center">
-          <thead class="table-light">
+          <thead id="thead-main">
             <tr>
               <th>면허번호</th>
               <th>이름</th>

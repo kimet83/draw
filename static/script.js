@@ -1,3 +1,115 @@
+// ===== 다크모드 / 발표모드 =====
+const htmlEl = document.documentElement;
+const bodyEl = document.body;
+// 현재 테마에 맞춰 구성요소들 외관 동기화
+function syncThemeForComponents() {
+  const isDark = document.documentElement.getAttribute('data-bs-theme') === 'dark';
+
+  // 테이블 헤더(필요 시 라이트/다크 헤더 클래스를 토글)
+  const thead = document.getElementById('thead-main');
+  if (thead) {
+    thead.classList.toggle('table-dark', isDark);
+    thead.classList.toggle('table-light', !isDark);
+  }
+
+  // body 배경은 항상 테마 연동 유지
+  document.body.classList.remove('bg-light');
+  document.body.classList.add('bg-body');
+}
+function applyDarkMode(on) {
+  document.documentElement.setAttribute("data-bs-theme", on ? "dark" : "light");
+  $("#btn-darkmode").textContent = on ? "☀️ 라이트모드" : "🌙 다크모드";
+  localStorage.setItem("draw.dark", on ? "1" : "0");
+  syncThemeForComponents();      // ✅ 테마 반영
+}
+function toggleDarkMode() {
+  const cur = htmlEl.getAttribute("data-bs-theme") === "dark";
+  applyDarkMode(!cur);
+}
+
+async function enterFullscreen() {
+  if (document.fullscreenElement) return;
+  try {
+    await document.documentElement.requestFullscreen();
+  } catch (_) { /* 무시 */ }
+}
+
+async function exitFullscreen() {
+  if (!document.fullscreenElement) return;
+  try {
+    await document.exitFullscreen();
+  } catch (_) { /* 무시 */ }
+}
+
+function applyPresentation(on) {
+  bodyEl.classList.toggle("presentation", on);
+  // 발표모드일 때 전체화면 진입 시도
+  if (on) enterFullscreen(); else exitFullscreen();
+
+  // 발표모드에서 숨길 컨트롤들 처리
+  // (controls.presentation-hide 클래스가 붙은 요소 숨김)
+  document.querySelectorAll(".controls.presentation-hide").forEach(el => {
+    if (on) el.classList.add("d-none");
+    else el.classList.remove("d-none");
+  });
+
+  $("#btn-present").textContent = on ? "⛶ 발표모드 종료" : "⛶ 발표모드";
+  localStorage.setItem("draw.presentation", on ? "1" : "0");
+}
+
+function togglePresentation() {
+  const on = !bodyEl.classList.contains("presentation");
+  applyPresentation(on);
+}
+
+// 초기화 시 저장된 상태 복원
+document.addEventListener("DOMContentLoaded", () => {
+  // 다크모드
+  const dark = localStorage.getItem("draw.dark") === "1";
+  applyDarkMode(dark);
+
+  // 발표모드
+  const pres = localStorage.getItem("draw.presentation") === "1";
+  applyPresentation(pres);
+  syncThemeForComponents();  
+});
+
+// 버튼 바인딩
+document.addEventListener("DOMContentLoaded", () => {
+  $("#btn-darkmode")?.addEventListener("click", toggleDarkMode);
+  $("#btn-present")?.addEventListener("click", togglePresentation);
+});
+
+// 단축키: D=다크모드, P=발표모드, Esc=발표모드 종료
+document.addEventListener("keydown", (ev) => {
+  // 입력 폼 포커스 중엔 단축키 무시
+  const tag = (ev.target.tagName || "").toLowerCase();
+  if (["input", "textarea", "select"].includes(tag)) return;
+
+  if (ev.key === "d" || ev.key === "D") {
+    ev.preventDefault();
+    toggleDarkMode();
+  } else if (ev.key === "p" || ev.key === "P") {
+    ev.preventDefault();
+    togglePresentation();
+  } else if (ev.key === "Escape") {
+    if (bodyEl.classList.contains("presentation")) {
+      ev.preventDefault();
+      applyPresentation(false);
+    }
+  }
+});
+
+// 전체화면에서 사용자가 수동으로 빠져나간 경우 버튼/상태 동기화
+document.addEventListener("fullscreenchange", () => {
+  if (!document.fullscreenElement && bodyEl.classList.contains("presentation")) {
+    // 전체화면만 빠졌더라도 발표모드 유지할지 여부는 선택사항.
+    // 여기서는 전체화면 이탈 시 발표모드도 종료하도록 처리.
+    applyPresentation(false);
+  }
+});
+
+
 // ===== 안전 유틸 =====
 const $ = (sel) => document.querySelector(sel);
 const $$ = (sel) => document.querySelectorAll(sel);
