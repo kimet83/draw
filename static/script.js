@@ -71,13 +71,16 @@ document.addEventListener("DOMContentLoaded", () => {
   // 발표모드
   const pres = localStorage.getItem("draw.presentation") === "1";
   applyPresentation(pres);
-  syncThemeForComponents();  
+  syncThemeForComponents();
 });
 
 // 버튼 바인딩
 document.addEventListener("DOMContentLoaded", () => {
   $("#btn-darkmode")?.addEventListener("click", toggleDarkMode);
   $("#btn-present")?.addEventListener("click", togglePresentation);
+  document.getElementById("logout-form")?.addEventListener("submit", (e) => {
+    if (!confirm("로그아웃 하시겠습니까?")) e.preventDefault();
+  });
 });
 
 // 단축키: D=다크모드, P=발표모드, Esc=발표모드 종료

@@ -58,6 +58,11 @@
 
     <!-- 업로드/토글 버튼 영역 -->
     <div class="d-flex justify-content-end mb-4 gap-2 controls presentation-hide">
+      <form id="logout-form" action="/logout" method="post" class="d-inline">
+        <!-- 다크모드에서도 잘 보이도록 채운 버튼 사용 -->
+        <button class="btn btn-danger" type="submit">로그아웃</button>
+      </form>
+
       <button class="btn btn-secondary" id="btn-darkmode" type="button">🌙 다크모드</button>
       <button class="btn btn-outline-secondary" id="btn-present" type="button">⛶ 발표모드</button>
       <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#uploadModal" type="button">
